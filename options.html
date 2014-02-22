@@ -1,0 +1,610 @@
+﻿<html>
+	<head>
+		<title>Context Menu Search</title>
+		<!--Author: Ashutosh Dwivedi-->
+
+		<link rel="stylesheet" type="text/css" href="css/screen.css" />
+		<script type="text/javascript" src="./js/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="./js/jquery-ui-1.10.3.custom.min.js"></script>
+
+		<script src="./js/getset.js"></script>
+		<script src="./js/options.js"></script>
+
+	</head>
+	<body>
+		<div class="contain">
+			<div align="center">
+				<div>
+					<div class="left">
+						<img class="title-image" src="./images/ico128.png" height="90px">
+					</div>
+					<div class="right" style="width:470px">
+						<div align="right">
+							<h1 class="style1">Context Menu Search &nbsp;</h1>
+							<button class="top_options" id="showpage_1">
+								Add search engines
+							</button>
+							|
+							<button class="top_options" id="showpage_2">
+								Manage current options
+							</button>
+							|
+							<button class="top_options" id="showpage_3">
+								Other options
+							</button>
+							|
+							<button class="top_options" id="showpage_4">
+								About
+							</button>
+							<br />
+							<br />
+							<p align="right">
+								<!-- <a href="http://twitter.com/share" class="twitter-share-button" data-url="https://chrome.google.com/extensions/detail/ocpcmghnefmdhljkoiapafejjohldoga" data-text="Context Menu Search Extension for Google Chrome" data-count="horizontal">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script> -->
+								<iframe src="http://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fchrome.google.com%2Fextensions%2Fdetail%2Focpcmghnefmdhljkoiapafejjohldoga&amp;layout=button_count&amp;show_faces=true&amp;width=90&amp;action=like&amp;colorscheme=light&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:90px; height:21px;" allowTransparency="true"></iframe>
+							</p>
+						</div>
+
+					</div>
+
+					<div class="clear"></div>
+				</div>
+			</div>
+
+			<hr />
+
+			<div align="center">
+
+				<div id="page1">
+					<h3>Add more Search Engines manually</h3>
+					<p>
+						To add a new search engine, enter the search term as "TESTSEARCH" in the search engine and copy the complete(including http://) URL of the results page to the 'Link' field above.
+						<br />
+						For example, to add Bing, search for TESTSEARCH in Bing and copy the URL of the results page and paste it here.
+					</p>
+					<p>
+						You can also use "%s" to denote search terms. This could be useful when you are copy-pasting from Chrome settings
+					</p>
+					<table>
+						<tr>
+							<th>Display name</th>
+							<th>Link</th>
+						</tr>
+						<tr>
+							<td>
+							<input type='text' id='newname' size='20' maxlength='30'>
+							</td>
+							<td>
+							<input type='text' id='newlink' size='80' maxlength='500'>
+							</td>
+						</tr>
+					</table>
+					<button id="add_option">
+						Add new option
+					</button>
+					<div id="status_addmanually"></div>
+
+					<h3><i>Or</i>
+					<br />
+					Pick from the following:</h3>
+					<div class="contain">
+						<input type="hidden" id="numoptions" value="41">
+						<div class="left">
+
+							<u>Web search</u>
+							<table>
+								<tr>
+									<td>
+									<input type="checkbox" id="s1">
+									</td><td>Google
+									<input type="hidden" id="names1" value="Google">
+									<input type="hidden" id="links1" value="http://www.google.com/search?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s2">
+									</td><td>Ask.com
+									<input type="hidden" id="names2" value="Ask">
+									<input type="hidden" id="links2" value="http://www.ask.com/web?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s3">
+									</td><td>Bing Search
+									<input type="hidden" id="names3" value="Bing Search">
+									<input type="hidden" id="links3" value="http://www.bing.com/search?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s38">
+									</td><td>Baidu
+									<input type="hidden" id="names38" value="Baidu">
+									<input type="hidden" id="links38" value="http://www.baidu.com/s?wd=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s4">
+									</td><td>Yahoo! Japan
+									<input type="hidden" id="names4" value="Yahoo! Japan">
+									<input type="hidden" id="links4" value="http://search.yahoo.co.jp/search?p=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s5">
+									</td><td>AllTheWeb
+									<input type="hidden" id="names5" value="AllTheWeb">
+									<input type="hidden" id="links5" value="http://www.alltheweb.com/search?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s6">
+									</td><td>Yahoo! Search
+									<input type="hidden" id="names6" value="Yahoo! Search">
+									<input type="hidden" id="links6" value="http://search.yahoo.com/search?p=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s7">
+									</td><td>DogPile
+									<input type="hidden" id="names7" value="Dogpile">
+									<input type="hidden" id="links7" value="http://www.dogpile.com/dogpile/ws/results/Web/TESTSEARCH/1/417/TopNavigation/Relevance/iq=true/zoom=off/_iceUrlFlag=7?_IceUrl=true">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s8">
+									</td><td>Metacrawler
+									<input type="hidden" id="names8" value="Metacrawler">
+									<input type="hidden" id="links8" value="http://www.metacrawler.com/metacrawler/ws/results/Web/TESTSEARCH/1/417/TopNavigation/Relevance/iq=true/zoom=off/_iceUrlFlag=7?_IceUrl=true">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s9">
+									</td><td>Wolfram Alpha
+									<input type="hidden" id="names9" value="Wolfram Alpha">
+									<input type="hidden" id="links9" value="http://www.wolframalpha.com/input/?i=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s10">
+									</td><td>Wikipedia EN
+									<input type="hidden" id="names10" value="Wikipedia EN">
+									<input type="hidden" id="links10" value="http://en.wikipedia.org/w/index.php?title=Special:Search&search=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s39">
+									</td><td>Reddit.com
+									<input type="hidden" id="names39" value="Reddit">
+									<input type="hidden" id="links39" value="http://www.google.com/search?q=site:reddit.com+TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s40">
+									</td><td>Google Definition
+									<input type="hidden" id="names40" value="Google Definition">
+									<input type="hidden" id="links40" value="http://www.google.com/search?hl=en&q=define:TESTSEARCH">
+									</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="left">
+
+							<u>Image search</u>
+							<table>
+								<tr>
+									<td>
+									<input type="checkbox" id="s11">
+									</td><td>Google Images
+									<input type="hidden" id="names11" value="Google Images">
+									<input type="hidden" id="links11" value="http://www.google.com/images?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s12">
+									</td><td>Bing Images
+									<input type="hidden" id="names12" value="Bing Images">
+									<input type="hidden" id="links12" value="http://www.bing.com/images/search?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s13">
+									</td><td>flickr
+									<input type="hidden" id="names13" value="flickr">
+									<input type="hidden" id="links13" value="http://www.flickr.com/search/?q=TESTSEARCH&w=all">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s14">
+									</td><td>Picasa
+									<input type="hidden" id="names14" value="Picasa">
+									<input type="hidden" id="links14" value="http://picasaweb.google.com/lh/view?q=TESTSEARCH&psc=G&filter=1#">
+									</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="left">
+
+							<u>News</u>
+							<table>
+								<tr>
+									<td>
+									<input type="checkbox" id="s15">
+									</td><td>Google News
+									<input type="hidden" id="names15" value="Google News">
+									<input type="hidden" id="links15" value="http://news.google.com/news/search?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s16">
+									</td><td>Bing News
+									<input type="hidden" id="names16" value="Bing News">
+									<input type="hidden" id="links16" value="http://www.bing.com/news/search?q=TESTSEARCH&go=&form=QBLH&scope=news&filt=all&qs=n&sk=">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s17">
+									</td><td>CNN
+									<input type="hidden" id="names17" value="CNN">
+									<input type="hidden" id="links17" value="http://edition.cnn.com/search/?query=TESTSEARCH&primaryType=mixed&sortBy=date">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s18">
+									</td><td>BBC World
+									<input type="hidden" id="names18" value="BBC World">
+									<input type="hidden" id="links18" value="http://search.bbc.co.uk/search?go=toolbar&uri=/&q=TESTSEARCH">
+									</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="left">
+
+							<u>Social Search</u>
+							<table>
+								<tr>
+									<td>
+									<input type="checkbox" id="s19">
+									</td><td>Facebook
+									<input type="hidden" id="names19" value="Facebook">
+									<input type="hidden" id="links19" value="http://www.facebook.com/#!/search/?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s41">
+									</td><td>Google+
+									<input type="hidden" id="names41" value="Google+">
+									<input type="hidden" id="links41" value="http://plus.google.com/s/TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s20">
+									</td><td>Twitter
+									<input type="hidden" id="names20" value="Twitter">
+									<input type="hidden" id="links20" value="http://twitter.com/#search?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s21">
+									</td><td>Myspace
+									<input type="hidden" id="names21" value="Myspace">
+									<input type="hidden" id="links21" value="http://searchservice.myspace.com/index.cfm?fuseaction=sitesearch.results&orig=search_Header&origpfc=FriendFinder&type=AllMySpace&qry=TESTSEARCH&submit=Search">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s22">
+									</td><td>Orkut
+									<input type="hidden" id="names22" value="Orkut">
+									<input type="hidden" id="links22" value="http://www.orkut.co.in/Main#UniversalSearch?origin=is&q=TESTSEARCH">
+									</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="left">
+
+							<u>Music & Movies</u>
+							<table>
+								<tr>
+									<td>
+									<input type="checkbox" id="s23">
+									</td><td>Last.fm
+									<input type="hidden" id="names23" value="Last.fm">
+									<input type="hidden" id="links23" value="http://www.last.fm/search?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s24">
+									</td><td>Yahoo! Music
+									<input type="hidden" id="names24" value="Yahoo! Music">
+									<input type="hidden" id="links24" value="http://new.music.yahoo.com/search/?p=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s25">
+									</td><td>MTV
+									<input type="hidden" id="names25" value="MTV">
+									<input type="hidden" id="links25" value="http://www.mtv.com/search/?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s36">
+									</td><td>IMDb
+									<input type="hidden" id="names36" value="IMDb">
+									<input type="hidden" id="links36" value="http://www.imdb.com/find?s=all&q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s37">
+									</td><td>Rotten Tomatoes
+									<input type="hidden" id="names37" value="Rotten Tomatoes">
+									<input type="hidden" id="links37" value="http://www.rottentomatoes.com/search/full_search.php?search=TESTSEARCH">
+									</td>
+								</tr>
+
+							</table>
+						</div>
+
+						<div class="left">
+
+							<u>Videos</u>
+							<table>
+								<tr>
+									<td>
+									<input type="checkbox" id="s26">
+									</td><td>YouTube
+									<input type="hidden" id="names26" value="YouTube">
+									<input type="hidden" id="links26" value="http://www.youtube.com/results?search_query=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s27">
+									</td><td>Google Videos
+									<input type="hidden" id="names27" value="Google Videos">
+									<input type="hidden" id="links27" value="http://www.google.com/search?q=TESTSEARCH&tbo=p&tbs=vid:1&source=vgc&hl=en&aq=f">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s28">
+									</td><td>Bing Videos
+									<input type="hidden" id="names28" value="Bing Videos">
+									<input type="hidden" id="links28" value="http://www.bing.com/videos/search?q=TESTSEARCH">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s29">
+									</td><td>Metacafe
+									<input type="hidden" id="names29" value="Metacafe">
+									<input type="hidden" id="links29" value="http://www.metacafe.com/results/TESTSEARCH/">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s30">
+									</td><td>Megavideo
+									<input type="hidden" id="names30" value="Megavideo">
+									<input type="hidden" id="links30" value="http://www.megavideo.com/?c=search&s=TESTSEARCH">
+									</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="left">
+
+							<u>Shopping</u>
+							<table>
+								<tr>
+									<td>
+									<input type="checkbox" id="s31">
+									</td><td>E-bay US
+									<input type="hidden" id="names31" value="E-bay US">
+									<input type="hidden" id="links31" value="http://shop.ebay.com/?_nkw=TESTSEARCH&_sacat=See-All-Categories">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s32">
+									</td><td>Amazon US
+									<input type="hidden" id="names32" value="Amazon US">
+									<input type="hidden" id="links32" value="http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=TESTSEARCH&x=0&y=0">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s33">
+									</td><td>Google Products
+									<input type="hidden" id="names33" value="Google Products">
+									<input type="hidden" id="links33" value="http://www.google.com/products?q=TESTSEARCH&aq=f">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s34">
+									</td><td>Bing Shopping
+									<input type="hidden" id="names34" value="Bing Shopping">
+									<input type="hidden" id="links34" value="http://www.bing.com/shopping/search?q=TESTSEARCH&go=&form=QBRE">
+									</td>
+								</tr>
+								<tr>
+									<td>
+									<input type="checkbox" id="s35">
+									</td><td>Yahoo Shopping
+									<input type="hidden" id="names35" value="Yahoo Shopping">
+									<input type="hidden" id="links35" value="http://search.yahoo.com/search?vc=&p=TESTSEARCH">
+									</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="clear"></div>
+						<button id="AddFromList">
+							Add selected options
+						</button>
+						<br />
+						<div id="status_addfromlist"></div>
+					</div>
+				</div>
+
+				<div id="page2" style="display:none">
+					<h3>Manage Context Menu Items</h3>
+					<input type="hidden" value="0" id="curnum">
+
+					<ul>
+						<li class="listHeading">
+							<div>
+								<span style="width:20px;"></span>
+								<span style="width:140px;">Display label</span>
+								<span style="width:460px;">Link</span>
+								<span style="width:40px;">Enabled?</span>
+								<span style="width:40px;">Delete</span>
+							</div>
+						</li>
+					</ul>
+					<ul id="options_list_ul">
+
+					</ul>
+					<br>
+
+					<button id="save_options">
+						Save new config
+					</button>
+					<button id="resetdefault">
+						Reset to default
+					</button>
+					<div id="status"></div>
+
+				</div>
+
+				<div id="page3" style="display:none">
+					<h3>Search results options</h3>
+					<table>
+						<tr>
+							<td>
+							<input type="checkbox" id="ask_bg">
+							</td><td>Open results in a background tab</td>
+						</tr>
+						<tr>
+							<td>
+							<input type="checkbox" id="ask_next">
+							</td><td>The new tab should be next to the current tab</td>
+						</tr>
+						<tr>
+							<td>
+							<input type="checkbox" id="ask_options">
+							</td><td>Show link to extension options at the end of context menu</td>
+						</tr>
+					</table>
+					<button id="save_otheroptions">
+						Save
+					</button>
+					<div id="status_otheroptions"></div>
+					<h3>Export/Import search options</h3>
+					<textarea id="exporttext" cols="110" rows="12"></textarea>
+					<br />
+					Use the above string to transfer your search engine options from one install of Chrome to another effortlessly.
+					<br />
+					Just copy the string from here to the options page in other install of chrome (or vice-versa)	and press 'Save'
+					<br />
+					Warning: Editing the above string may cause unexpected behaviour!
+					<br />
+					<button id="save_import">
+						Save
+					</button>
+					<div id="status_import"></div>
+				</div>
+
+				<div id="page4" style="display:none">
+
+					<div class="contain">
+						<h3>About Context Menu Search</h3>
+						<p>
+							Version: 2.91
+							|
+							Developer: <a href="http://ashutoshdwivedi.com/" target="_blank">Ashu</a>
+							|
+							<a href="https://chrome.google.com/extensions/detail/ocpcmghnefmdhljkoiapafejjohldoga" target="_blank">Extension home</a>
+						</p>
+						<div align="left">
+							<h4>Change-log</h4>
+							<p>
+								2.91:  Fixed content security violations. Removed tweet option due to direct script loading.
+							<p>
+							<p>
+								2.90:  Changed to use manifest version 2.
+							<p>
+							<p>
+								2.82:  Drag and drop to rearrange options.
+							<p>
+								2.80:  Minor code changes, Option for Google+ search added.
+							<p>
+								2.72:  Bug fixed: Chrome restart no longer needed to apply settings.
+							<p>
+								2.7:  Icon changed. Can now use '%s' also to denote search terms.
+							<p>
+								2.6:  CSS problems fixed on options page. Option for Cuil Search removed and options for Yahoo! Japan, Reddit(Google search) and Google Definitions added.'Facebook Like' button added.
+							</p>
+							<p>
+								2.5:  Users can choose to have the link to options page displayed at the end of the context menu. Export/Import search engines' list feature is provided to facilitate saving of configuration. Options page redesigned for easy use. Added Baidu and Rotten Tomatoes.
+							</p>
+							<p>
+								2.0:  Added options for the user to choose if the search results show in a background or foreground tab. They can also pick whether the new tab opens next to the current tab or at the end. A list of 35 search engines has been added as options for the user to add.
+							</p>
+							<p>
+								1.5:  The order of the search options can now be re-arranged.
+							</p>
+							<p>
+								1.0:  Users can now add as many search engines to the right click menu as they want. An existing option can now be disabled or deleted if not required.
+							</p>
+							<p>
+								0.9:  Added the ability for enabling/disabling particular search engines. Users can also customize which search engines they want and what the name of the search engine in the list should be.
+							</p>
+							<p>
+								0.5:  Added Bing images to default pack
+							</p>
+							<p>
+								&nbsp;
+							</p>
+							<p>
+								For suggestions and bug-reports, add a comment <a href="http://ashutoshdwivedi.com/2010/09/context-menu-search-for-chrome/" target="_blank">here</a>
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<hr />
+
+			</div>
+		</div>
+	</body>
+
+</html>
