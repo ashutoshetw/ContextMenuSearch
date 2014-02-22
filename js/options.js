@@ -81,8 +81,9 @@ function restore_options()
 		document.getElementById("listItemName"+i).value = parsedArray[i][1];
 		document.getElementById("listItemLink"+i).value = parsedArray[i][2];
 		if(parsedArray[i][3]) document.getElementById("listItemEnab"+i).checked = "true";
-		document.getElementById("listItemRemoveButton"+i).onclick = function(){
-			remove(i);
+		document.getElementById("listItemRemoveButton"+i).onclick = function(event){
+			index = event.target.getAttribute("index");
+			remove(index);
 		};
 	}
 	
@@ -113,7 +114,7 @@ function add_item()
 							<input type='text' class='listItemName' id='listItemName"+curnum+"' size='20' maxlength='30'>\
 							<input type='text' class='listItemLink' id='listItemLink"+curnum+"' size='80' maxlength='200'>\
 							<input type='checkbox' class='checkStyle' id='listItemEnab"+curnum+"'>\
-							<button class='removeButtonStyle' id='listItemRemoveButton"+curnum+"'>X</button>\
+							<button index="+curnum+" class='removeButtonStyle' id='listItemRemoveButton"+curnum+"'>X</button>\
 							</div></li>"
 	document.getElementById("options_list_ul").innerHTML += appendListHTML;
 }
