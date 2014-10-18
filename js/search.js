@@ -1,7 +1,7 @@
 var _all;
 var numentries;
 
-var newBuildNumber = 280;
+var newBuildNumber = 293;
 setItem("_buildNumber", newBuildNumber);
 
 function updatemenu()
