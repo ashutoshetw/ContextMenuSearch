@@ -1,15 +1,14 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "Context Menu Search",
 	"description": "Use the right-click menu to search for selected text in different search engines",
 	"default_locale": "en",
-	"version": "2.93",
-	"permissions": ["contextMenus", "tabs"],
+	"version": "2.94",
+	"permissions": ["contextMenus", "storage", "offscreen"],
 	"background": {
-		"scripts": ["js/getset.js", "js/search.js"],
-		"persistent": true
+		"service_worker": "js/service.js"
 	},
-	"minimum_chrome_version": "6.0.472",
+	"minimum_chrome_version": "88",
 	"options_page": "options.html",
 	"icons": {
 		"16": "images/ico16.png",

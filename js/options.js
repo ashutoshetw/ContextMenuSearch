@@ -3,34 +3,43 @@ function initialise(){
 	restore_options();
 }
 
-function save_import()
+function updatemenu() {
+	chrome.runtime.sendMessage({ action: 'reload' }, (response) => {
+		// Handle the response if needed
+		if (response && response.status === 'success') {
+			console.log('Service worker function executed successfully');
+		} else {
+			console.log('Service worker function execution failed');
+		}
+	});
+}
+
+async function save_import()
 {
-	setItem("_allsearch", document.getElementById("exporttext").value);
+	await setItem("_allSearch", document.getElementById("exporttext").value);
 	var status = document.getElementById("status_import");
 	status.innerHTML = "New Configuration Saved.";
 	setTimeout(function() {status.innerHTML = "";},1250);
 	
-	chrome.extension.getBackgroundPage().updatemenu();
+	updatemenu();
 }
 
-function save_otheroptions() 
+async function save_otheroptions() 
 {	
 	var ask_bg = document.getElementById("ask_bg").checked;
 	var ask_next = document.getElementById("ask_next").checked;
-	var ask_options = document.getElementById("ask_options").checked;
 	
-	setItem("_askbg", ask_bg);
-	setItem("_asknext", ask_next);
-	setItem("_askoptions", ask_options);
+	await setItem("_askBg", ask_bg);
+	await setItem("_askNext", ask_next);
 	
 	var status = document.getElementById("status_otheroptions");
 	status.innerHTML = "Options Saved.";
 	setTimeout(function() {status.innerHTML = "";},1250);
 	
-	chrome.extension.getBackgroundPage().updatemenu();
+	updatemenu();
 }
 
-function save_options() 
+async function save_options() 
 {
 	var optionsList = document.getElementById("options_list_ul");
 	var maxindex = optionsList.childElementCount;
@@ -44,33 +53,32 @@ function save_options()
 		_all[i][1] = document.getElementById("listItemName"+curnum).value;
 		_all[i][2] = document.getElementById("listItemLink"+curnum).value;
 		_all[i][3] = document.getElementById("listItemEnab"+curnum).checked;
-		//alert(_all[i][3]);
 	}
 	
-	//alert(_all);
 	var stringified = JSON.stringify(_all);
-	setItem("_allsearch", stringified);
+	await setItem("_allSearch", stringified);
 	
 	var ask_bg = document.getElementById("ask_bg").checked;
 	var ask_next = document.getElementById("ask_next").checked;
 	
-	setItem("_askbg", ask_bg);
-	setItem("_asknext", ask_next);
+	await setItem("_askBg", ask_bg);
+	await setItem("_askNext", ask_next);
 	
 	var status = document.getElementById("status");
 	status.innerHTML = "Options Saved.";
 	setTimeout(function() {status.innerHTML = "";},1250);
 	
-	chrome.extension.getBackgroundPage().updatemenu();
+	updatemenu();
 }
 
-function restore_options() 
+async function restore_options() 
 {
 	var optionsList = document.getElementById("options_list_ul");
 	optionsList.innerHTML = "";
-	var stringified = getItem("_allsearch");
+	var stringified = await getItem("_allSearch");
+	
 	document.getElementById("exporttext").value = stringified;
-	var parsedArray = JSON.parse(stringified);
+	var parsedArray = JSON.parse(stringified) || [];
 	
 	for(var i=0;i<parsedArray.length;i++)
 	{
@@ -87,13 +95,13 @@ function restore_options()
 		};
 	}
 	
-	var ask_bg = getItem("_askbg");
-	var ask_next = getItem("_asknext");
-	var ask_options = getItem("_askoptions");
+	var ask_bg = await getItem("_askBg");
+	var ask_next = await getItem("_askNext");
 
-	if(ask_bg=="true") document.getElementById("ask_bg").checked = "true";
-	if(ask_next=="true") document.getElementById("ask_next").checked = "true";
-	if(ask_options=="true") document.getElementById("ask_options").checked = "true";
+	console.log(ask_bg)
+
+	if(ask_bg==true) document.getElementById("ask_bg").checked = "true";
+	if(ask_next==true) document.getElementById("ask_next").checked = "true";
 }
 
 function remove(j)
@@ -119,12 +127,12 @@ function add_item()
 	document.getElementById("options_list_ul").innerHTML += appendListHTML;
 }
 
-function add_option()
+async function add_option()
 {
 	var nname = document.getElementById("newname").value;
 	var nlink = document.getElementById("newlink").value;
 
-	var stringified = getItem("_allsearch");
+	var stringified = await getItem("_allSearch");
 	var parsedArray = JSON.parse(stringified);
 
 	var newoptions = new Array(parsedArray.length+1);
@@ -142,7 +150,7 @@ function add_option()
 	newoptions[i][3] = true;
 	
 	var newstring = JSON.stringify(newoptions);
-	setItem("_allsearch", newstring);
+	await setItem("_allSearch", newstring);
 
 	restore_options();
 	save_options();
@@ -157,15 +165,14 @@ function add_option()
 function resetdefault()
 {
 	clearStrg();
-	chrome.extension.getBackgroundPage().updatemenu();
-	//alert(parsedArray);
+	updatemenu();
 	restore_options();
 }
 
-function AddFromList()
+async function AddFromList()
 {
 	var numoptions = document.getElementById("numoptions").value;
-	//alert("numoptions = "+numoptions);
+
 	for(var j=1; j<=numoptions; j++)
 	{
 		if(document.getElementById("s"+j).checked)
@@ -173,7 +180,7 @@ function AddFromList()
 			var nname = document.getElementById("names"+j).value;
 			var nlink = document.getElementById("links"+j).value;
 		
-			var stringified = getItem("_allsearch");
+			var stringified = await getItem("_allSearch");
 			var parsedArray = JSON.parse(stringified);
 		
 			var newoptions = new Array(parsedArray.length+1);
@@ -190,10 +197,8 @@ function AddFromList()
 			newoptions[i][2] = nlink;
 			newoptions[i][3] = true;
 			
-			//alert(newoptions[i]);
-			
 			var newstring = JSON.stringify(newoptions);
-			setItem("_allsearch", newstring);
+			await setItem("_allSearch", newstring);
 			document.getElementById("s"+j).checked = false;
 		
 			restore_options();
