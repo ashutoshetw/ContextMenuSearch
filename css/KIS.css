@@ -25,6 +25,7 @@ div.clear {
 }
 
 button.top_options {
+    padding: 4px;
 	background-color: transparent;
 	border: none;
 	text-decoration: underline;
@@ -75,7 +76,7 @@ th, td {
   	border-style: solid;
 }
 th {
-	color: #7BA857;
+	color: #225522;
 	background: #EFFAE6;
 	padding: .8em 1em;	
   	border-color: #DFF4D5 #D3EFC3 #A7DF8A #D3EFC3;	
@@ -151,13 +152,14 @@ li > div > span {
 
 /* button styles */
 button {
+    padding: 8px 20px;
 	background-color: transparent;
-	border: none;
 	text-decoration: underline;
 	border-width: 1px;
   	border-style: solid;
 	color:#336600;
 	text-decoration: none;
+    border-radius: 50px;
 }
 button:hover {
 	background-color: #336600;
@@ -165,6 +167,7 @@ button:hover {
 	cursor:pointer;
 	border-width: 1px;
   	border-style: solid;
+    border-radius: 50px;
 }
 
 /* checkbox style */
@@ -174,7 +177,17 @@ button:hover {
 
 /* remove button style */
 .removeButtonStyle {
+    padding: 0px;
+    border-radius: 4px;
 	width:40px;
+}
+.removeButtonStyle:hover {
+	background-color: #336600;
+	color:white;
+	cursor:pointer;
+	border-width: 1px;
+  	border-style: solid;
+    border-radius: 4px;
 }
 
 

@@ -135,9 +135,10 @@ async function add_option()
 	var stringified = await getItem("_allSearch");
 	var parsedArray = JSON.parse(stringified);
 
-	var newoptions = new Array(parsedArray.length+1);
-	
-	for(var i=0;i<parsedArray.length;i++)
+    var length = (parsedArray?.length ?? 0);
+    var newoptions = new Array(length + 1);
+
+    for(var i=0;i<length;i++)
 	{
 		newoptions[i] = new Array(4);
 		newoptions[i] = parsedArray[i].slice(0);
@@ -182,10 +183,11 @@ async function AddFromList()
 		
 			var stringified = await getItem("_allSearch");
 			var parsedArray = JSON.parse(stringified);
-		
-			var newoptions = new Array(parsedArray.length+1);
-			
-			for(var i=0;i<parsedArray.length;i++)
+
+			var length = (parsedArray?.length ?? 0);
+			var newoptions = new Array(length + 1);
+
+			for(var i=0;i<length;i++)
 			{
 				newoptions[i] = new Array(4);
 				newoptions[i] = parsedArray[i].slice(0);
