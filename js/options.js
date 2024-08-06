@@ -1,6 +1,6 @@
-function initialise(){
+async function initialise(){
 	showpage(1);
-	restore_options();
+	await restore_options();
 }
 
 function updatemenu() {
@@ -24,7 +24,7 @@ async function save_import()
 	updatemenu();
 }
 
-async function save_otheroptions() 
+async function save_otheroptions()
 {	
 	var ask_bg = document.getElementById("ask_bg").checked;
 	var ask_next = document.getElementById("ask_next").checked;
@@ -39,7 +39,7 @@ async function save_otheroptions()
 	updatemenu();
 }
 
-async function save_options() 
+async function save_options()
 {
 	var optionsList = document.getElementById("options_list_ul");
 	var maxindex = optionsList.childElementCount;
@@ -152,8 +152,8 @@ async function add_option()
 	var newstring = JSON.stringify(newoptions);
 	await setItem("_allSearch", newstring);
 
-	restore_options();
-	save_options();
+	await restore_options();
+	await save_options();
 	
 	document.getElementById("newname").value = "";
 	document.getElementById("newlink").value = "";
@@ -201,8 +201,8 @@ async function AddFromList()
 			await setItem("_allSearch", newstring);
 			document.getElementById("s"+j).checked = false;
 		
-			restore_options();
-			save_options();
+			await restore_options();
+			await save_options();
 		}
 	}
 	var status = document.getElementById("status_addfromlist");

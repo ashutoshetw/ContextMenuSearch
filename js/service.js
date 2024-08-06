@@ -2,7 +2,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     // Check if data exists in chrome.storage.local
     chrome.storage.local.get((result) => {
         console.log('Got storage.local ', result);
-        if (chrome.runtime.lastError || !result._allSearch) {
+        if (chrome.runtime.lastError || !result._allSearch || (result._allSearch?.length ?? 0) < 1) {
             // If data is not found, create the offscreen document and trigger migration
             chrome.offscreen.createDocument({
                 url: chrome.runtime.getURL('background.html'),

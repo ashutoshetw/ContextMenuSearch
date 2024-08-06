@@ -1,15 +1,12 @@
 
 // JavaScript to be used in all extensions possibly!
 
-var logging = false;
+var logging = true;
 
 // Async function to set an item in chrome.storage.local
 async function setItem(key, value) {
 	try {
 		log("Inside setItem: " + key + ": " + value);
-
-		// Remove the item from chrome.storage.local first (if necessary)
-		await chrome.storage.local.remove(key);
 
 		// Set the item in chrome.storage.local
 		await chrome.storage.local.set({ [key]: value });

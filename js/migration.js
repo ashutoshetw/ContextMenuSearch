@@ -12,7 +12,9 @@ function fillSampleData() {
 function getLocalStorageData() {
     console.log("getLocalStorageData started")
 
-    if(localStorage.getItem('_allsearch') == null) {
+    var existingItems = localStorage.getItem('_allsearch')
+
+    if(existingItems == null || (existingItems?.length ?? 0) == 0) {
         console.log("getLocalStorageData filling sample data")
         fillSampleData()
     }

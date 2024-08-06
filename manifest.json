@@ -3,7 +3,7 @@
 	"name": "Context Menu Search",
 	"description": "Use the right-click menu to search for selected text in different search engines",
 	"default_locale": "en",
-	"version": "2.94",
+	"version": "2.95",
 	"permissions": ["contextMenus", "storage", "offscreen"],
 	"background": {
 		"service_worker": "js/service.js"
