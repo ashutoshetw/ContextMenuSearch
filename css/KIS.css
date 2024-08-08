@@ -123,12 +123,27 @@ li {
 li > div {
 	width: 820px;
 	height: 40px;
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Center children vertically */
+    white-space: nowrap; /* Prevent wrapping */
 }
 
-li > div > * {
-	float:left;
-	height:19px;
+li > div > *:not(hr) {
+    display: inline-block; /* Align elements horizontally */
+    vertical-align: top; /* Align elements to the top */
+	height:20px;
 	width:20px;
+	margin-left : 10px;
+	margin-right : 10px;
+	margin-top : 10px;
+	margin-bottom : 10px;
+}
+
+li > div > hr {
+    display: inline-block; /* Align elements horizontally */
+    vertical-align: top; /* Align elements to the top */
+	width:20px;
+	border: 1px solid #D4D4D4;
 	margin-left : 10px;
 	margin-right : 10px;
 	margin-top : 10px;
@@ -195,7 +210,7 @@ button:hover {
 .dragIcon {
 	width: 20px;
 	height: 20px;
-	background-image: url(drag_icon2.png);
+	background-image: url(drag_vertical.svg);
 	background-size: 20px 20px;
 	background-repeat: no-repeat;
 	cursor:move;
@@ -212,7 +227,7 @@ button:hover {
 
 /* list item heading */
 .listHeading {
-	color: #7BA857;
+	color: #225522;
 	background: #EFFAE6;
   	border-color: #DFF4D5 #D3EFC3 #A7DF8A #D3EFC3;	
 }

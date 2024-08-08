@@ -3,40 +3,38 @@ async function initialise(){
 	await restore_options();
 }
 
-function updatemenu() {
-	chrome.runtime.sendMessage({ action: 'reload' }, (response) => {
-		// Handle the response if needed
-		if (response && response.status === 'success') {
-			console.log('Service worker function executed successfully');
-		} else {
-			console.log('Service worker function execution failed');
-		}
-	});
+chrome.storage.onChanged.addListener(async (changes) => {
+    await restore_options();
+});
+
+function showToast(message) {
+    var toast = document.getElementById("toast");
+    toast.className = "show";
+    toast.innerHTML = message;
+    setTimeout(function() { toast.className = toast.className.replace("show", ""); }, 3000);
 }
 
 async function save_import()
 {
 	await setItem("_allSearch", document.getElementById("exporttext").value);
 	var status = document.getElementById("status_import");
-	status.innerHTML = "New Configuration Saved.";
-	setTimeout(function() {status.innerHTML = "";},1250);
-	
-	updatemenu();
+
+	showToast("New Configuration Imported");
 }
 
 async function save_otheroptions()
 {	
 	var ask_bg = document.getElementById("ask_bg").checked;
 	var ask_next = document.getElementById("ask_next").checked;
-	
+	var ask_options = document.getElementById("ask_options").checked;
+
 	await setItem("_askBg", ask_bg);
 	await setItem("_askNext", ask_next);
+	await setItem("_askOptions", ask_options);
 	
 	var status = document.getElementById("status_otheroptions");
-	status.innerHTML = "Options Saved.";
-	setTimeout(function() {status.innerHTML = "";},1250);
-	
-	updatemenu();
+
+	showToast("Options Saved");
 }
 
 async function save_options()
@@ -48,11 +46,17 @@ async function save_options()
 	for(var i=0; i<maxindex;i++)
 	{
 		curnum = optionsList.children[i].getAttribute('index');
-		_all[i] = new Array(4);
-		_all[i][0] = "-1";
-		_all[i][1] = document.getElementById("listItemName"+curnum).value;
-		_all[i][2] = document.getElementById("listItemLink"+curnum).value;
-		_all[i][3] = document.getElementById("listItemEnab"+curnum).checked;
+		var itemNode = optionsList.children[i];
+
+		const title = itemNode.querySelector("#listItemName"+curnum)?.value ?? "";
+		const link = itemNode.querySelector("#listItemLink"+curnum)?.value ?? "";
+		var isEnabled = itemNode.querySelector("#listItemEnab"+curnum)?.checked ?? false;
+
+        _all[i] = new Array(4);
+        _all[i][0] = "-1";
+        _all[i][1] = title;
+        _all[i][2] = link;
+        _all[i][3] = isEnabled;
 	}
 	
 	var stringified = JSON.stringify(_all);
@@ -65,10 +69,8 @@ async function save_options()
 	await setItem("_askNext", ask_next);
 	
 	var status = document.getElementById("status");
-	status.innerHTML = "Options Saved.";
-	setTimeout(function() {status.innerHTML = "";},1250);
-	
-	updatemenu();
+
+	showToast("Options Saved");
 }
 
 async function restore_options() 
@@ -82,49 +84,89 @@ async function restore_options()
 	
 	for(var i=0;i<parsedArray.length;i++)
 	{
-		add_item();
-	}
-	for(var i=0;i<parsedArray.length;i++)
-	{
-		document.getElementById("listItemName"+i).value = parsedArray[i][1];
-		document.getElementById("listItemLink"+i).value = parsedArray[i][2];
-		if(parsedArray[i][3]) document.getElementById("listItemEnab"+i).checked = "true";
-		document.getElementById("listItemRemoveButton"+i).onclick = function(event){
-			index = event.target.getAttribute("index");
-			remove(index);
-		};
+	    const item = parsedArray[i];
+
+	    if(item && item.length == 4 && item[1] != "" && item[2] != "") {
+	        add_item(item);
+	    } else {
+	        add_separator(item);
+	    }
 	}
 	
 	var ask_bg = await getItem("_askBg");
 	var ask_next = await getItem("_askNext");
+	var ask_options = await getItem("_askOptions");
 
 	console.log(ask_bg)
 
 	if(ask_bg==true) document.getElementById("ask_bg").checked = "true";
 	if(ask_next==true) document.getElementById("ask_next").checked = "true";
+	if(ask_options==true) document.getElementById("ask_options").checked = "true";
+
+    const old_search_items = window.localStorage.getItem("_allsearch");
+	document.getElementById("exporttext_old").value = old_search_items;
 }
 
 function remove(j)
 {
 	var listOfSearchOptions = document.getElementById("options_list_ul");
 	var listItemToRemove = document.getElementById("listItem"+j);
+	console.log("Removing item with index: " + j, listItemToRemove);
 	listOfSearchOptions.removeChild(listItemToRemove);
 }
 
-function add_item()
-{
-	var optionsList = document.getElementById("options_list_ul");
-	var curnum = optionsList.childElementCount;
-	
-	var appendListHTML = "<li index='"+curnum+"' id='listItem"+curnum+"'>\
-							<div align='center'>\
-							<div class='dragIcon'></div>\
-							<input type='text' class='listItemName' id='listItemName"+curnum+"' size='20' maxlength='30'>\
-							<input type='text' class='listItemLink' id='listItemLink"+curnum+"' size='80' maxlength='200'>\
-							<input type='checkbox' class='checkStyle' id='listItemEnab"+curnum+"'>\
-							<button index="+curnum+" class='removeButtonStyle' id='listItemRemoveButton"+curnum+"'>X</button>\
-							</div></li>"
-	document.getElementById("options_list_ul").innerHTML += appendListHTML;
+function createListItem(curnum, isSeparator) {
+    var newListItem = document.createElement('li');
+    newListItem.setAttribute('index', curnum);
+    newListItem.setAttribute('id', 'listItem' + curnum);
+
+    var innerHTML = `
+        <div align='center'>
+            <div class='dragIcon' style='width:20px;'></div>
+            ${isSeparator ? `
+                <hr style='width:138px;'></hr>
+                <hr style='width:458px;'></hr>
+            ` : `
+                <input type='text' class='listItemName' id='listItemName${curnum}' size='20' maxlength='30'>
+                <input type='text' class='listItemLink' id='listItemLink${curnum}' size='80' maxlength='200'>
+            `}
+            <input type='checkbox' class='checkStyle' id='listItemEnab${curnum}' style='width:40px;'}>
+            <button index='${curnum}' class='removeButtonStyle' id='listItemRemoveButton${curnum}' style='width:40px;'>X</button>
+        </div>
+    `;
+    newListItem.innerHTML = innerHTML;
+
+    // Add event listener to the remove button
+    newListItem.querySelector(`#listItemRemoveButton${curnum}`).addEventListener('click', function(event) {
+        var index = event.target.getAttribute('index');
+        remove(index);
+    });
+
+    return newListItem;
+}
+
+function add_item(item) {
+    var optionsList = document.getElementById('options_list_ul');
+    var curnum = optionsList.childElementCount;
+    var newListItem = createListItem(curnum, false);
+    optionsList.appendChild(newListItem);
+
+    // Set data to the new list item using querySelector
+    newListItem.querySelector("#listItemName" + curnum).value = item[1];
+    newListItem.querySelector("#listItemLink" + curnum).value = item[2];
+    if (item[3]) newListItem.querySelector("#listItemEnab" + curnum).checked = item[3];
+}
+
+function add_separator(item) {
+    var optionsList = document.getElementById('options_list_ul');
+    var curnum = optionsList.childElementCount;
+    var newListItem = createListItem(curnum, true);
+    optionsList.appendChild(newListItem);
+
+    item = item || ["-1", "", "", true];
+
+    // Set data to the new list item using querySelector
+    if (item[3]) newListItem.querySelector("#listItemEnab" + curnum).checked = item[3];
 }
 
 async function add_option()
@@ -152,25 +194,22 @@ async function add_option()
 	
 	var newstring = JSON.stringify(newoptions);
 	await setItem("_allSearch", newstring);
-
-	await restore_options();
-	await save_options();
 	
 	document.getElementById("newname").value = "";
 	document.getElementById("newlink").value = "";
 	var status = document.getElementById("status_addmanually");
-	status.innerHTML = "Options Saved.";
-	setTimeout(function() {status.innerHTML = ""; showpage(2);},1250);
+
+	showToast("New Item Added");
+	setTimeout(function() {showpage(2);}, 1250);
 }
 
 function resetdefault()
 {
 	clearStrg();
-	updatemenu();
 	restore_options();
 }
 
-async function AddFromList()
+async function add_from_list()
 {
 	var numoptions = document.getElementById("numoptions").value;
 
@@ -202,14 +241,11 @@ async function AddFromList()
 			var newstring = JSON.stringify(newoptions);
 			await setItem("_allSearch", newstring);
 			document.getElementById("s"+j).checked = false;
-		
-			await restore_options();
-			await save_options();
 		}
 	}
-	var status = document.getElementById("status_addfromlist");
-	status.innerHTML = "Options Saved.";
-	setTimeout(function() {status.innerHTML = ""; showpage(2);},1250);
+
+	showToast("New Items Added");
+	setTimeout(function() {showpage(2);}, 1250);
 }	
 
 
@@ -248,12 +284,16 @@ $(document).ready(function(){
 		  add_option();
 		});
 		
-		$("#AddFromList").click(function() {
-		  AddFromList();
+		$("#add_from_list").click(function() {
+		  add_from_list();
 		});
 		
 		$("#save_options").click(function() {
 		  save_options();
+		});
+
+		$("#add_separator").click(function() {
+		  add_separator();
 		});
 		
 		$("#resetdefault").click(function() {

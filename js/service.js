@@ -24,11 +24,8 @@ chrome.runtime.onInstalled.addListener(async () => {
     });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'reload') {
-        loadContextMenuItems();
-        sendResponse({ status: 'success' });
-    }
+chrome.storage.onChanged.addListener((changes) => {
+    loadContextMenuItems()
 });
 
 async function migrateToStorageLocal(data) {
@@ -59,12 +56,17 @@ async function loadContextMenuItems() {
 
     for (var i = 0; i < numentries; i++) {
         if (_all[i][3]) {
-            _all[i][0] = chrome.contextMenus.create({ id: _all[i][2], "title": _all[i][1], "contexts": ["selection"] });
+            if (_all[i][1] == "" && _all[i][2] == "") {
+                //show separator
+                chrome.contextMenus.create({ id: i.toString(), "type": "separator", "contexts": ["selection"] });
+            } else {
+                _all[i][0] = chrome.contextMenus.create({ id: _all[i][2], "title": _all[i][1], "contexts": ["selection"] });
+            }
         }
         else _all[i][0] = -1;
     }
 
-    var ask_options = true;
+    var ask_options = await getItem("_askOptions") == true;
 
     if (ask_options) {
         //show separator
@@ -105,12 +107,12 @@ async function searchOnClick(menuInfo, tab) {
     console.log("Foreground = ", ask_fg)
     console.log("Next = ", ask_next)
 
-    if (ask_next) {
-        index = tab.index + 1;
-        chrome.tabs.create({ "url": targetURL, "active": ask_fg, "index": index });
-    } else {
-        chrome.tabs.create({ "url": targetURL, "active": ask_fg });
-    }
+    chrome.tabs.create({
+        url: targetURL,
+        active: ask_fg,
+        index: ask_next ? tab.index + 1 : undefined,
+        openerTabId: tab.id
+     });
 }
 
 // Async function to get an item from chrome.storage.local
