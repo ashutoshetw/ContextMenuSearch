@@ -54,16 +54,37 @@ async function loadContextMenuItems() {
     console.log(_all)
     console.log(numentries)
 
+    var latestGroupIndex = -1;
+
     for (var i = 0; i < numentries; i++) {
-        if (_all[i][3]) {
+        if (_all[i] == null || _all[i].length < 4 || _all[i][3] == false) {
+            continue;
+        }
+
+        var type = _all[i][0]
+
+        if (type == -1) {
             if (_all[i][1] == "" && _all[i][2] == "") {
                 //show separator
                 chrome.contextMenus.create({ id: i.toString(), "type": "separator", "contexts": ["selection"] });
             } else {
-                _all[i][0] = chrome.contextMenus.create({ id: _all[i][2], "title": _all[i][1], "contexts": ["selection"] });
+                chrome.contextMenus.create({ id: i.toString(), "title": _all[i][1], "contexts": ["selection"] });
             }
         }
-        else _all[i][0] = -1;
+
+        if (type == 0) {
+            latestGroupIndex = i;
+            chrome.contextMenus.create({ id: i.toString(), "title": _all[i][1], "contexts": ["selection"] });
+        }
+
+        if (type == 1 && latestGroupIndex != -1) {
+            if (_all[i][1] == "" && _all[i][2] == "") {
+                //show separator
+                chrome.contextMenus.create({ id: i.toString(), parentId: latestGroupIndex.toString(), "type": "separator", "contexts": ["selection"] });
+            } else {
+                chrome.contextMenus.create({ id: i.toString(), parentId: latestGroupIndex.toString(), "title": _all[i][1], "contexts": ["selection"] });
+            }
+        }
     }
 
     var ask_options = await getItem("_askOptions") == true;
@@ -99,8 +120,13 @@ async function searchOnClick(menuInfo, tab) {
 
     var ask_fg = await getItem("_askBg") == true ? false : true;
     var ask_next = await getItem("_askNext") == true ? true : false;
+    var _allSearch = await getItem("_allSearch") || [];
 
-    var targetURL = menuInfo.menuItemId;
+    var targetIndex = Number(menuInfo.menuItemId);
+
+    _all = JSON.parse(_allSearch);
+
+    var targetURL = _all[targetIndex][2];
     targetURL = targetURL.replace("%s", menuInfo.selectionText);
     targetURL = targetURL.replace("TESTSEARCH", menuInfo.selectionText);
 

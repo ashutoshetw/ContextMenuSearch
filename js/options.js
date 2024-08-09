@@ -3,15 +3,15 @@ async function initialise(){
 	await restore_options();
 }
 
-chrome.storage.onChanged.addListener(async (changes) => {
+chrome.storage?.onChanged?.addListener(async (changes) => {
     await restore_options();
 });
 
-function showToast(message) {
+function showToast(message, isError = false) {
     var toast = document.getElementById("toast");
-    toast.className = "show";
+    toast.className = isError ? "showError" : "show";
     toast.innerHTML = message;
-    setTimeout(function() { toast.className = toast.className.replace("show", ""); }, 3000);
+    setTimeout(function() { toast.className = toast.className.replace(isError ? "showError" : "show", ""); }, 3000);
 }
 
 async function save_import()
@@ -51,26 +51,106 @@ async function save_options()
 		const title = itemNode.querySelector("#listItemName"+curnum)?.value ?? "";
 		const link = itemNode.querySelector("#listItemLink"+curnum)?.value ?? "";
 		var isEnabled = itemNode.querySelector("#listItemEnab"+curnum)?.checked ?? false;
+		const isSubmenu = itemNode.querySelector("#listItemSubmenu"+curnum) != null;
+		const isGroup = itemNode.querySelector("#listItemGroup"+curnum) != null;
+
+		const type = isSubmenu ? "1" : isGroup ? "0" : "-1";
 
         _all[i] = new Array(4);
-        _all[i][0] = "-1";
+        _all[i][0] = type;
         _all[i][1] = title;
         _all[i][2] = link;
         _all[i][3] = isEnabled;
 	}
-	
-	var stringified = JSON.stringify(_all);
-	await setItem("_allSearch", stringified);
-	
-	var ask_bg = document.getElementById("ask_bg").checked;
-	var ask_next = document.getElementById("ask_next").checked;
-	
-	await setItem("_askBg", ask_bg);
-	await setItem("_askNext", ask_next);
-	
-	var status = document.getElementById("status");
 
-	showToast("Options Saved");
+	var valid = validate_settings(_all);
+
+	if(valid) {
+        var stringified = JSON.stringify(_all);
+        await setItem("_allSearch", stringified);
+
+        var ask_bg = document.getElementById("ask_bg").checked;
+        var ask_next = document.getElementById("ask_next").checked;
+
+        await setItem("_askBg", ask_bg);
+        await setItem("_askNext", ask_next);
+
+        var status = document.getElementById("status");
+
+        showToast("Options Saved");
+    }
+}
+
+function validate_settings(allSearch) {
+    // Initialize isValid to true and errorMessage to an empty string
+    let isValid = true;
+    let errorMessage = "";
+    var itemWithError = -1;
+    var itemNameWithError = "";
+
+    // Loop through each item in allSearch
+    for (let i = 0; i < allSearch.length; i++) {
+        itemWithError = i;
+        const item = allSearch[i];
+
+        // Check if the item is an array and has exactly 4 elements
+        if (!Array.isArray(item) || item.length !== 4) {
+            isValid = false;
+            errorMessage = "Invalid item structure.";
+            break;
+        }
+
+        const [type, title, link, isEnabled] = item;
+
+        itemNameWithError = title;
+
+        // Check if the first element is one of the valid types ("-1", "0", "1")
+        if (!["-1", "0", "1"].includes(type)) {
+            isValid = false;
+            errorMessage = "Invalid type.";
+            break;
+        }
+
+        // Check if the third element (link) is a non-empty string
+        if (typeof link == 'string' && link.trim() !== "") {
+            // Check title only if the link is a valid string
+            // Check if the second element (title) is a non-empty string
+            if (typeof title !== 'string' || title.trim() === "") {
+                isValid = false;
+                errorMessage = "Empty display label is not allowed";
+                break;
+            }
+        }
+
+        // Check if the fourth element (isEnabled) is a boolean
+        if (typeof isEnabled !== 'boolean') {
+            isValid = false;
+            errorMessage = "Invalid isEnabled value.";
+            break;
+        }
+
+        // Check if item with type "1" is preceded by either item of type "0" or item of type "1"
+        if (type === "1") {
+            if (i === 0) {
+                isValid = false;
+                errorMessage = "A submenu item should be placed below a Group or another submenu item.";
+                break;
+            } else {
+                const prevType = allSearch[i - 1][0];
+                if (!["0", "1"].includes(prevType)) {
+                    isValid = false;
+                    errorMessage = "A submenu item should be placed below a Group or another submenu item.";
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!isValid) {
+        showToast(`Error in item ${itemWithError + 1} ${itemNameWithError}: ${errorMessage}`, true);
+    }
+
+    return isValid;
 }
 
 async function restore_options() 
@@ -86,7 +166,11 @@ async function restore_options()
 	{
 	    const item = parsedArray[i];
 
-	    if(item && item.length == 4 && item[1] != "" && item[2] != "") {
+	    if(item && item.length == 4 && item[0] == "0") {
+            add_group(item);
+        } else if(item && item.length == 4 && item[0] == "1") {
+            add_submenuitem(item);
+        } else if(item && item.length == 4 && item[1] != "" && item[2] != "") {
 	        add_item(item);
 	    } else {
 	        add_separator(item);
@@ -115,7 +199,7 @@ function remove(j)
 	listOfSearchOptions.removeChild(listItemToRemove);
 }
 
-function createListItem(curnum, isSeparator) {
+function createListItem(curnum, innerContent) {
     var newListItem = document.createElement('li');
     newListItem.setAttribute('index', curnum);
     newListItem.setAttribute('id', 'listItem' + curnum);
@@ -123,13 +207,7 @@ function createListItem(curnum, isSeparator) {
     var innerHTML = `
         <div align='center'>
             <div class='dragIcon' style='width:20px;'></div>
-            ${isSeparator ? `
-                <hr style='width:138px;'></hr>
-                <hr style='width:458px;'></hr>
-            ` : `
-                <input type='text' class='listItemName' id='listItemName${curnum}' size='20' maxlength='30'>
-                <input type='text' class='listItemLink' id='listItemLink${curnum}' size='80' maxlength='200'>
-            `}
+            ${innerContent}
             <input type='checkbox' class='checkStyle' id='listItemEnab${curnum}' style='width:40px;'}>
             <button index='${curnum}' class='removeButtonStyle' id='listItemRemoveButton${curnum}' style='width:40px;'>X</button>
         </div>
@@ -148,7 +226,11 @@ function createListItem(curnum, isSeparator) {
 function add_item(item) {
     var optionsList = document.getElementById('options_list_ul');
     var curnum = optionsList.childElementCount;
-    var newListItem = createListItem(curnum, false);
+    const innerHTML = `
+          <input type='text' class='listItemName' id='listItemName${curnum}' size='20' maxlength='30'>
+          <input type='text' class='listItemLink' id='listItemLink${curnum}' size='80' maxlength='200'>
+      `;
+    var newListItem = createListItem(curnum, innerHTML);
     optionsList.appendChild(newListItem);
 
     // Set data to the new list item using querySelector
@@ -160,12 +242,52 @@ function add_item(item) {
 function add_separator(item) {
     var optionsList = document.getElementById('options_list_ul');
     var curnum = optionsList.childElementCount;
-    var newListItem = createListItem(curnum, true);
+    const innerHTML = `
+          <hr style='width:138px;'></hr>
+          <hr style='width:458px;'></hr>
+      `;
+    var newListItem = createListItem(curnum, innerHTML);
     optionsList.appendChild(newListItem);
 
     item = item || ["-1", "", "", true];
 
     // Set data to the new list item using querySelector
+    if (item[3]) newListItem.querySelector("#listItemEnab" + curnum).checked = item[3];
+}
+
+function add_group(item) {
+    var optionsList = document.getElementById('options_list_ul');
+    var curnum = optionsList.childElementCount;
+    const innerHTML = `
+          <input type='text' class='listItemName' id='listItemName${curnum}' size='20' maxlength='30'/>
+          <p id='listItemGroup${curnum}' style='width:460px;' class='listItemLink'>Submenu items below this will show up in a submenu</p>
+      `;
+    var newListItem = createListItem(curnum, innerHTML);
+    optionsList.appendChild(newListItem);
+
+    item = item || ["-1", "Group Name", "", true];
+
+    // Set data to the new list item using querySelector
+    newListItem.querySelector("#listItemName" + curnum).value = item[1];
+    if (item[3]) newListItem.querySelector("#listItemEnab" + curnum).checked = item[3];
+}
+
+function add_submenuitem(item) {
+    var optionsList = document.getElementById('options_list_ul');
+    var curnum = optionsList.childElementCount;
+    const innerHTML = `
+          <img id='listItemSubmenu${curnum}' height="20px" width="20px" src="css/submenu.svg">
+          <input type='text' class='listSubItemName' id='listItemName${curnum}' size='20' maxlength='30'/>
+          <input type='text' class='listItemLink' id='listItemLink${curnum}' size='80' maxlength='200'>
+      `;
+    var newListItem = createListItem(curnum, innerHTML);
+    optionsList.appendChild(newListItem);
+
+    item = item || ["-1", "Submenu Label", "Submenu Link", true];
+
+    // Set data to the new list item using querySelector
+    newListItem.querySelector("#listItemName" + curnum).value = item[1];
+    newListItem.querySelector("#listItemLink" + curnum).value = item[2];
     if (item[3]) newListItem.querySelector("#listItemEnab" + curnum).checked = item[3];
 }
 
@@ -294,6 +416,14 @@ $(document).ready(function(){
 
 		$("#add_separator").click(function() {
 		  add_separator();
+		});
+
+		$("#add_group").click(function() {
+		  add_group();
+		});
+
+		$("#add_submenuitem").click(function() {
+		  add_submenuitem();
 		});
 		
 		$("#resetdefault").click(function() {

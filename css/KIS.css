@@ -221,6 +221,10 @@ button:hover {
 	width:140px;
 }
 
+.listSubItemName {
+	width:100px;
+}
+
 .listItemLink {
 	width:460px;
 }

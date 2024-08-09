@@ -1,7 +1,6 @@
 /* Base style for the toast */
 #toast {
     visibility: hidden;
-    margin-left: -125px;
     background-color: #225522; /* Match the background color */
     color: #EFFAE6; /* Match the text color */
     text-align: center;
@@ -9,14 +8,24 @@
     padding: 16px;
     position: fixed;
     z-index: 1;
-    left: 50%;
     bottom: 30px;
     font-size: 15px;
     border: 1px solid #DFF4D5; /* Match the border color */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Center horizontally */
 }
 
 /* Show the toast */
 #toast.show {
+    background-color: #225522; /* Match the background color */
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Show the error toast */
+#toast.showError {
+    background-color: #D9534F;
     visibility: visible;
     -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
     animation: fadein 0.5s, fadeout 0.5s 2.5s;
