@@ -231,3 +231,11 @@ button:hover {
 	background: #EFFAE6;
   	border-color: #DFF4D5 #D3EFC3 #A7DF8A #D3EFC3;	
 }
+
+.scaled-cropped-img {
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+    display: inline-block;
+    border-radius: 16px; /* Rounded corners */
+}
