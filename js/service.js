@@ -93,6 +93,15 @@ async function getAllData() {
 
 chrome.contextMenus.onClicked.addListener(searchOnClick)
 
+function replaceAllInstances(text, searchValue, replaceValue) {
+    const regex = new RegExp(searchValue, 'g');
+    return text.replace(regex, replaceValue);
+}
+
+function splitBySpace(text) {
+    return text.split(" ");
+}
+
 async function searchOnClick(menuInfo, tab) {
     console.log(menuInfo)
     console.log(tab)
@@ -100,19 +109,30 @@ async function searchOnClick(menuInfo, tab) {
     var ask_fg = await getItem("_askBg") == true ? false : true;
     var ask_next = await getItem("_askNext") == true ? true : false;
 
-    var targetURL = menuInfo.menuItemId;
-    targetURL = targetURL.replace("%s", menuInfo.selectionText);
-    targetURL = targetURL.replace("TESTSEARCH", menuInfo.selectionText);
-
     console.log("Foreground = ", ask_fg)
     console.log("Next = ", ask_next)
 
-    chrome.tabs.create({
-        url: targetURL,
-        active: ask_fg,
-        index: ask_next ? tab.index + 1 : undefined,
-        openerTabId: tab.id
-     });
+    const configuredLink = menuInfo.menuItemId;
+
+    // split
+    const split = splitBySpace(configuredLink);
+
+    // loop on the output
+    split.forEach((item) => {
+        // open the link
+        var targetURL = item;
+        var encodedText = encodeURIComponent(menuInfo.selectionText);
+
+        targetURL = replaceAllInstances(targetURL, "%s", encodedText);
+        targetURL = replaceAllInstances(targetURL, "TESTSEARCH", encodedText);
+
+        chrome.tabs.create({
+            url: targetURL,
+            active: ask_fg,
+            index: ask_next ? tab.index + 1 : undefined,
+            openerTabId: tab.id
+         });
+    });
 }
 
 // Async function to get an item from chrome.storage.local

@@ -31,7 +31,7 @@ async function save_otheroptions()
 	await setItem("_askBg", ask_bg);
 	await setItem("_askNext", ask_next);
 	await setItem("_askOptions", ask_options);
-	
+
 	var status = document.getElementById("status_otheroptions");
 
 	showToast("Options Saved");
@@ -128,7 +128,7 @@ function createListItem(curnum, isSeparator) {
                 <hr style='width:458px;'></hr>
             ` : `
                 <input type='text' class='listItemName' id='listItemName${curnum}' size='20' maxlength='30'>
-                <input type='text' class='listItemLink' id='listItemLink${curnum}' size='80' maxlength='200'>
+                <input type='text' class='listItemLink' id='listItemLink${curnum}' size='80' maxlength='5000'>
             `}
             <input type='checkbox' class='checkStyle' id='listItemEnab${curnum}' style='width:40px;'}>
             <button index='${curnum}' class='removeButtonStyle' id='listItemRemoveButton${curnum}' style='width:40px;'>X</button>
@@ -295,7 +295,7 @@ $(document).ready(function(){
 		$("#add_separator").click(function() {
 		  add_separator();
 		});
-		
+
 		$("#resetdefault").click(function() {
 		  resetdefault();
 		});
