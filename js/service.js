@@ -1,3 +1,5 @@
+importScripts('encoding.min.js');
+
 chrome.runtime.onInstalled.addListener(async () => {
     // Check if data exists in chrome.storage.local
     chrome.storage.local.get((result) => {
@@ -102,6 +104,20 @@ function splitBySpace(text) {
     return text.split(" ");
 }
 
+function detectEncoding(text) {
+    const detected = Encoding.detect(text);
+    return detected || 'UTF-8';
+}
+
+function convertEncoding(text, toEncoding, fromEncoding = null) {
+    const detectedEncoding = fromEncoding || detectEncoding(text);
+    
+    return Encoding.convert(text, {
+        to: toEncoding,
+        from: detectedEncoding
+    });
+}
+
 async function searchOnClick(menuInfo, tab) {
     console.log(menuInfo)
     console.log(tab)
@@ -118,10 +134,25 @@ async function searchOnClick(menuInfo, tab) {
     const split = splitBySpace(configuredLink);
 
     // loop on the output
-    split.forEach((item) => {
+    for (const item of split) {
         // open the link
         var targetURL = item;
-        var encodedText = encodeURIComponent(menuInfo.selectionText);
+        var encodedText = menuInfo.selectionText;
+
+        const encodingMatch = targetURL.match(/%\{s:([^}]+)\}/);
+        if (encodingMatch) {
+            const [fullMatch, encodings] = encodingMatch;
+            const [fromEncoding, toEncoding] = encodings.split('-').map(e => e.trim());
+            
+            let encodedConvertText = '';
+            if (fromEncoding && toEncoding) {
+                encodedConvertText = convertEncoding(encodedText, toEncoding, fromEncoding);
+            } else if (fromEncoding) {
+                encodedConvertText = convertEncoding(encodedText, fromEncoding);
+            }
+
+            targetURL = replaceAllInstances(targetURL, fullMatch, Encoding.urlEncode(encodedConvertText));
+        }
 
         targetURL = replaceAllInstances(targetURL, "%s", encodedText);
         targetURL = replaceAllInstances(targetURL, "TESTSEARCH", encodedText);
@@ -131,8 +162,8 @@ async function searchOnClick(menuInfo, tab) {
             active: ask_fg,
             index: ask_next ? tab.index + 1 : undefined,
             openerTabId: tab.id
-         });
-    });
+        });
+    };
 }
 
 // Async function to get an item from chrome.storage.local
