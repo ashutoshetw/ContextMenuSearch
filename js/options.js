@@ -99,12 +99,16 @@ async function restore_options()
 
 	console.log(ask_bg)
 
-	if(ask_bg==true) document.getElementById("ask_bg").checked = "true";
-	if(ask_next==true) document.getElementById("ask_next").checked = "true";
-	if(ask_options==true) document.getElementById("ask_options").checked = "true";
+	if(isTrue(ask_bg)) document.getElementById("ask_bg").checked = "true";
+	if(isTrue(ask_next)) document.getElementById("ask_next").checked = "true";
+	if(isTrue(ask_options)) document.getElementById("ask_options").checked = "true";
 
     const old_search_items = window.localStorage.getItem("_allsearch");
 	document.getElementById("exporttext_old").value = old_search_items;
+}
+
+function isTrue(value) {
+    return value === true || value === "true";
 }
 
 function remove(j)
