@@ -32,47 +32,70 @@ async function migrateToStorageLocal(data) {
     chrome.storage.local.set(data)
 }
 
+// trying to ensure loadContextMenuItems calls are not overlapping
+// they can overlap if there are storage changes in quick succession
+let isExecutingLoadContextMenuItems = false;
+let loadContextMenuItemsQueue = [];
+
 async function loadContextMenuItems() {
-    console.log("loadContextMenuItems called")
-
-    console.log("Clearing existing items")
-    await new Promise((resolve) => {
-        chrome.contextMenus.removeAll(() => {
-            console.log('All context menu items have been removed.');
-            resolve();
+    if (isExecutingLoadContextMenuItems) {
+        return new Promise((resolve, reject) => {
+            loadContextMenuItemsQueue.push({ resolve, reject });
         });
-    });
-
-    const allData = await getAllData()
-
-    console.log("loadContextMenuItems data = ", allData)
-
-    _all = JSON.parse(allData._allSearch);
-
-    numentries = _all?.length ?? 0;
-
-    console.log(_all)
-    console.log(numentries)
-
-    for (var i = 0; i < numentries; i++) {
-        if (_all[i][3]) {
-            if (_all[i][1] == "" && _all[i][2] == "") {
-                //show separator
-                chrome.contextMenus.create({ id: i.toString(), "type": "separator", "contexts": ["selection"] });
-            } else {
-                _all[i][0] = chrome.contextMenus.create({ id: _all[i][2], "title": _all[i][1], "contexts": ["selection"] });
-            }
-        }
-        else _all[i][0] = -1;
     }
 
-    var ask_options = await getItem("_askOptions") == true;
+    isExecutingLoadContextMenuItems = true;
 
-    if (ask_options) {
-        //show separator
-        chrome.contextMenus.create({ id: "separator", "type": "separator", "contexts": ["selection"] });
-        //show the item for linking to extension options
-        chrome.contextMenus.create({ id: "options.html", "title": "Options", "contexts": ["selection"] });
+    try {
+        console.log("loadContextMenuItems called");
+
+        console.log("Clearing existing items");
+        await new Promise((resolve) => {
+            chrome.contextMenus.removeAll(() => {
+                console.log('All context menu items have been removed.');
+                resolve();
+            });
+        });
+
+        const allData = await getAllData();
+
+        console.log("loadContextMenuItems data = ", allData);
+
+        _all = JSON.parse(allData._allSearch);
+
+        numentries = _all?.length ?? 0;
+
+        console.log(_all);
+        console.log(numentries);
+
+        for (var i = 0; i < numentries; i++) {
+            if (_all[i][3]) {
+                if (_all[i][1] == "" && _all[i][2] == "") {
+                    //show separator
+                    chrome.contextMenus.create({ id: i.toString(), "type": "separator", "contexts": ["selection"] });
+                } else {
+                    _all[i][0] = chrome.contextMenus.create({ id: _all[i][2], "title": _all[i][1], "contexts": ["selection"] });
+                }
+            }
+            else _all[i][0] = -1;
+        }
+
+        var ask_options = looseCompareBooleanOrStrings(await getItem("_askOptions"), true);
+
+        if (ask_options) {
+            //show separator
+            chrome.contextMenus.create({ id: "separator", "type": "separator", "contexts": ["selection"] });
+            //show the item for linking to extension options
+            chrome.contextMenus.create({ id: "options.html", "title": "Options", "contexts": ["selection"] });
+        }
+    } catch (error) {
+        console.error('Error in loadContextMenuItems:', error);
+    } finally {
+        isExecutingLoadContextMenuItems = false;
+        if (loadContextMenuItemsQueue.length > 0) {
+            const nextCall = loadContextMenuItemsQueue.shift();
+            loadContextMenuItems().then(nextCall.resolve).catch(nextCall.reject);
+        }
     }
 }
 
@@ -102,12 +125,16 @@ function splitBySpace(text) {
     return text.split(" ");
 }
 
+function looseCompareBooleanOrStrings(a, b) {
+    return a.toString().toLowerCase() === b.toString().toLowerCase();
+}
+
 async function searchOnClick(menuInfo, tab) {
     console.log(menuInfo)
     console.log(tab)
 
-    var ask_fg = await getItem("_askBg") == true ? false : true;
-    var ask_next = await getItem("_askNext") == true ? true : false;
+    var ask_fg = !looseCompareBooleanOrStrings(await getItem("_askBg"), true);
+    var ask_next = looseCompareBooleanOrStrings(await getItem("_askNext"), true);
 
     console.log("Foreground = ", ask_fg)
     console.log("Next = ", ask_next)
@@ -123,6 +150,10 @@ async function searchOnClick(menuInfo, tab) {
         var targetURL = item;
         var encodedText = encodeURIComponent(menuInfo.selectionText);
 
+        // replace the search term in the URL without encoding for %S
+        targetURL = replaceAllInstances(targetURL, "NOENCODESEARCH", menuInfo.selectionText);
+
+        // replace the search term in the URL with encoding for %s and TESTSEARCH
         targetURL = replaceAllInstances(targetURL, "%s", encodedText);
         targetURL = replaceAllInstances(targetURL, "TESTSEARCH", encodedText);
 
